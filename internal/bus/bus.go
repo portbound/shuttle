@@ -10,8 +10,12 @@ type Store interface {
 	Save(ctx context.Context, topic string, data []byte) error
 }
 
+var (
+	ErrEmptyTopic = errors.New("topic cannot be empty")
+)
+
 type Bus struct {
-	sync.RWMutex
+	mu          sync.RWMutex
 	store       Store
 	subscribers map[string][]chan []byte
 }
@@ -30,15 +34,15 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 	}
 
 	if topic == "" {
-		return errors.New("topic cannot be empty")
+		return ErrEmptyTopic
 	}
 
 	if err := b.store.Save(ctx, topic, data); err != nil {
 		return err
 	}
 
-	b.RLock()
-	defer b.RUnlock()
+	b.mu.RLock()
+	defer b.mu.RUnlock()
 	for _, ch := range b.subscribers[topic] {
 		ch <- data
 	}
@@ -47,17 +51,27 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 }
 
 func (b *Bus) Subscribe(ctx context.Context, topic string) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
+	if topic == "" {
+		return ErrEmptyTopic
+	}
+
 	ch := make(chan []byte)
 
-	b.Lock()
+	b.mu.Lock()
 	b.subscribers[topic] = append(b.subscribers[topic], ch)
-	b.Unlock()
+	b.mu.Unlock()
 
 	go func() {
 		<-ctx.Done()
 
-		b.Lock()
-		defer b.Unlock()
+		b.mu.Lock()
+		defer b.mu.Unlock()
 
 		// delete the channel from the slice
 		close(ch)
