@@ -1,4 +1,4 @@
-module github.com/portbound/busser
+module github.com/portbound/shuttle
 
 go 1.26.1
 

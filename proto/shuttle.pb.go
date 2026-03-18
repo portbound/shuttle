@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.1
-// source: proto/msgbus.proto
+// source: proto/shuttle.proto
 
 package proto
 
@@ -57,11 +57,11 @@ func (x HealthCheckResponse_Status) String() string {
 }
 
 func (HealthCheckResponse_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_msgbus_proto_enumTypes[0].Descriptor()
+	return file_proto_shuttle_proto_enumTypes[0].Descriptor()
 }
 
 func (HealthCheckResponse_Status) Type() protoreflect.EnumType {
-	return &file_proto_msgbus_proto_enumTypes[0]
+	return &file_proto_shuttle_proto_enumTypes[0]
 }
 
 func (x HealthCheckResponse_Status) Number() protoreflect.EnumNumber {
@@ -70,7 +70,7 @@ func (x HealthCheckResponse_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use HealthCheckResponse_Status.Descriptor instead.
 func (HealthCheckResponse_Status) EnumDescriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{7, 0}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{7, 0}
 }
 
 type PublishRequest struct {
@@ -83,7 +83,7 @@ type PublishRequest struct {
 
 func (x *PublishRequest) Reset() {
 	*x = PublishRequest{}
-	mi := &file_proto_msgbus_proto_msgTypes[0]
+	mi := &file_proto_shuttle_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +95,7 @@ func (x *PublishRequest) String() string {
 func (*PublishRequest) ProtoMessage() {}
 
 func (x *PublishRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[0]
+	mi := &file_proto_shuttle_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +108,7 @@ func (x *PublishRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishRequest.ProtoReflect.Descriptor instead.
 func (*PublishRequest) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{0}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *PublishRequest) GetTopic() string {
@@ -135,7 +135,7 @@ type PublishResponse struct {
 
 func (x *PublishResponse) Reset() {
 	*x = PublishResponse{}
-	mi := &file_proto_msgbus_proto_msgTypes[1]
+	mi := &file_proto_shuttle_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +147,7 @@ func (x *PublishResponse) String() string {
 func (*PublishResponse) ProtoMessage() {}
 
 func (x *PublishResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[1]
+	mi := &file_proto_shuttle_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,7 +160,7 @@ func (x *PublishResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishResponse.ProtoReflect.Descriptor instead.
 func (*PublishResponse) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{1}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PublishResponse) GetMessageId() string {
@@ -186,7 +186,7 @@ type SubscribeRequest struct {
 
 func (x *SubscribeRequest) Reset() {
 	*x = SubscribeRequest{}
-	mi := &file_proto_msgbus_proto_msgTypes[2]
+	mi := &file_proto_shuttle_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -198,7 +198,7 @@ func (x *SubscribeRequest) String() string {
 func (*SubscribeRequest) ProtoMessage() {}
 
 func (x *SubscribeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[2]
+	mi := &file_proto_shuttle_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -211,7 +211,7 @@ func (x *SubscribeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeRequest.ProtoReflect.Descriptor instead.
 func (*SubscribeRequest) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{2}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SubscribeRequest) GetTopic() string {
@@ -233,7 +233,7 @@ type SubscribeResponse struct {
 
 func (x *SubscribeResponse) Reset() {
 	*x = SubscribeResponse{}
-	mi := &file_proto_msgbus_proto_msgTypes[3]
+	mi := &file_proto_shuttle_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +245,7 @@ func (x *SubscribeResponse) String() string {
 func (*SubscribeResponse) ProtoMessage() {}
 
 func (x *SubscribeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[3]
+	mi := &file_proto_shuttle_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +258,7 @@ func (x *SubscribeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeResponse.ProtoReflect.Descriptor instead.
 func (*SubscribeResponse) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{3}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SubscribeResponse) GetMessageId() string {
@@ -298,7 +298,7 @@ type ListTopicsResponse struct {
 
 func (x *ListTopicsResponse) Reset() {
 	*x = ListTopicsResponse{}
-	mi := &file_proto_msgbus_proto_msgTypes[4]
+	mi := &file_proto_shuttle_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -310,7 +310,7 @@ func (x *ListTopicsResponse) String() string {
 func (*ListTopicsResponse) ProtoMessage() {}
 
 func (x *ListTopicsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[4]
+	mi := &file_proto_shuttle_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -323,7 +323,7 @@ func (x *ListTopicsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTopicsResponse.ProtoReflect.Descriptor instead.
 func (*ListTopicsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{4}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListTopicsResponse) GetTopics() []string {
@@ -341,7 +341,7 @@ type ListTopicsRequest struct {
 
 func (x *ListTopicsRequest) Reset() {
 	*x = ListTopicsRequest{}
-	mi := &file_proto_msgbus_proto_msgTypes[5]
+	mi := &file_proto_shuttle_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -353,7 +353,7 @@ func (x *ListTopicsRequest) String() string {
 func (*ListTopicsRequest) ProtoMessage() {}
 
 func (x *ListTopicsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[5]
+	mi := &file_proto_shuttle_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -366,7 +366,7 @@ func (x *ListTopicsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTopicsRequest.ProtoReflect.Descriptor instead.
 func (*ListTopicsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{5}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{5}
 }
 
 type HealthCheckRequest struct {
@@ -377,7 +377,7 @@ type HealthCheckRequest struct {
 
 func (x *HealthCheckRequest) Reset() {
 	*x = HealthCheckRequest{}
-	mi := &file_proto_msgbus_proto_msgTypes[6]
+	mi := &file_proto_shuttle_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -389,7 +389,7 @@ func (x *HealthCheckRequest) String() string {
 func (*HealthCheckRequest) ProtoMessage() {}
 
 func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[6]
+	mi := &file_proto_shuttle_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -402,7 +402,7 @@ func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
 func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{6}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{6}
 }
 
 type HealthCheckResponse struct {
@@ -413,7 +413,7 @@ type HealthCheckResponse struct {
 
 func (x *HealthCheckResponse) Reset() {
 	*x = HealthCheckResponse{}
-	mi := &file_proto_msgbus_proto_msgTypes[7]
+	mi := &file_proto_shuttle_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -425,7 +425,7 @@ func (x *HealthCheckResponse) String() string {
 func (*HealthCheckResponse) ProtoMessage() {}
 
 func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_msgbus_proto_msgTypes[7]
+	mi := &file_proto_shuttle_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,14 +438,14 @@ func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
 func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_proto_msgbus_proto_rawDescGZIP(), []int{7}
+	return file_proto_shuttle_proto_rawDescGZIP(), []int{7}
 }
 
-var File_proto_msgbus_proto protoreflect.FileDescriptor
+var File_proto_shuttle_proto protoreflect.FileDescriptor
 
-const file_proto_msgbus_proto_rawDesc = "" +
+const file_proto_shuttle_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/msgbus.proto\x12\x06msgbus\"@\n" +
+	"\x13proto/shuttle.proto\x12\ashuttle\"@\n" +
 	"\x0ePublishRequest\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\fR\apayload\"J\n" +
@@ -470,48 +470,48 @@ const file_proto_msgbus_proto_rawDesc = "" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eSTATUS_SERVING\x10\x01\x12\x16\n" +
 	"\x12STATUS_NOT_SERVING\x10\x02\x12\x1a\n" +
-	"\x16STATUS_SERVICE_UNKNOWN\x10\x032\x9c\x02\n" +
-	"\rMsgBusService\x12:\n" +
-	"\aPublish\x12\x16.msgbus.PublishRequest\x1a\x17.msgbus.PublishResponse\x12B\n" +
-	"\tSubscribe\x12\x18.msgbus.SubscribeRequest\x1a\x19.msgbus.SubscribeResponse0\x01\x12C\n" +
+	"\x16STATUS_SERVICE_UNKNOWN\x10\x032\x9e\x02\n" +
+	"\aShuttle\x12<\n" +
+	"\aPublish\x12\x17.shuttle.PublishRequest\x1a\x18.shuttle.PublishResponse\x12D\n" +
+	"\tSubscribe\x12\x19.shuttle.SubscribeRequest\x1a\x1a.shuttle.SubscribeResponse0\x01\x12E\n" +
 	"\n" +
-	"ListTopics\x12\x19.msgbus.ListTopicsRequest\x1a\x1a.msgbus.ListTopicsResponse\x12F\n" +
-	"\vHealthCheck\x12\x1a.msgbus.HealthCheckRequest\x1a\x1b.msgbus.HealthCheckResponseB#Z!github.com/portbound/msgbus/protob\x06proto3"
+	"ListTopics\x12\x1a.shuttle.ListTopicsRequest\x1a\x1b.shuttle.ListTopicsResponse\x12H\n" +
+	"\vHealthCheck\x12\x1b.shuttle.HealthCheckRequest\x1a\x1c.shuttle.HealthCheckResponseB$Z\"github.com/portbound/shuttle/protob\x06proto3"
 
 var (
-	file_proto_msgbus_proto_rawDescOnce sync.Once
-	file_proto_msgbus_proto_rawDescData []byte
+	file_proto_shuttle_proto_rawDescOnce sync.Once
+	file_proto_shuttle_proto_rawDescData []byte
 )
 
-func file_proto_msgbus_proto_rawDescGZIP() []byte {
-	file_proto_msgbus_proto_rawDescOnce.Do(func() {
-		file_proto_msgbus_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_msgbus_proto_rawDesc), len(file_proto_msgbus_proto_rawDesc)))
+func file_proto_shuttle_proto_rawDescGZIP() []byte {
+	file_proto_shuttle_proto_rawDescOnce.Do(func() {
+		file_proto_shuttle_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_shuttle_proto_rawDesc), len(file_proto_shuttle_proto_rawDesc)))
 	})
-	return file_proto_msgbus_proto_rawDescData
+	return file_proto_shuttle_proto_rawDescData
 }
 
-var file_proto_msgbus_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_msgbus_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_proto_msgbus_proto_goTypes = []any{
-	(HealthCheckResponse_Status)(0), // 0: msgbus.HealthCheckResponse.Status
-	(*PublishRequest)(nil),          // 1: msgbus.PublishRequest
-	(*PublishResponse)(nil),         // 2: msgbus.PublishResponse
-	(*SubscribeRequest)(nil),        // 3: msgbus.SubscribeRequest
-	(*SubscribeResponse)(nil),       // 4: msgbus.SubscribeResponse
-	(*ListTopicsResponse)(nil),      // 5: msgbus.ListTopicsResponse
-	(*ListTopicsRequest)(nil),       // 6: msgbus.ListTopicsRequest
-	(*HealthCheckRequest)(nil),      // 7: msgbus.HealthCheckRequest
-	(*HealthCheckResponse)(nil),     // 8: msgbus.HealthCheckResponse
+var file_proto_shuttle_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_proto_shuttle_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_proto_shuttle_proto_goTypes = []any{
+	(HealthCheckResponse_Status)(0), // 0: shuttle.HealthCheckResponse.Status
+	(*PublishRequest)(nil),          // 1: shuttle.PublishRequest
+	(*PublishResponse)(nil),         // 2: shuttle.PublishResponse
+	(*SubscribeRequest)(nil),        // 3: shuttle.SubscribeRequest
+	(*SubscribeResponse)(nil),       // 4: shuttle.SubscribeResponse
+	(*ListTopicsResponse)(nil),      // 5: shuttle.ListTopicsResponse
+	(*ListTopicsRequest)(nil),       // 6: shuttle.ListTopicsRequest
+	(*HealthCheckRequest)(nil),      // 7: shuttle.HealthCheckRequest
+	(*HealthCheckResponse)(nil),     // 8: shuttle.HealthCheckResponse
 }
-var file_proto_msgbus_proto_depIdxs = []int32{
-	1, // 0: msgbus.MsgBusService.Publish:input_type -> msgbus.PublishRequest
-	3, // 1: msgbus.MsgBusService.Subscribe:input_type -> msgbus.SubscribeRequest
-	6, // 2: msgbus.MsgBusService.ListTopics:input_type -> msgbus.ListTopicsRequest
-	7, // 3: msgbus.MsgBusService.HealthCheck:input_type -> msgbus.HealthCheckRequest
-	2, // 4: msgbus.MsgBusService.Publish:output_type -> msgbus.PublishResponse
-	4, // 5: msgbus.MsgBusService.Subscribe:output_type -> msgbus.SubscribeResponse
-	5, // 6: msgbus.MsgBusService.ListTopics:output_type -> msgbus.ListTopicsResponse
-	8, // 7: msgbus.MsgBusService.HealthCheck:output_type -> msgbus.HealthCheckResponse
+var file_proto_shuttle_proto_depIdxs = []int32{
+	1, // 0: shuttle.Shuttle.Publish:input_type -> shuttle.PublishRequest
+	3, // 1: shuttle.Shuttle.Subscribe:input_type -> shuttle.SubscribeRequest
+	6, // 2: shuttle.Shuttle.ListTopics:input_type -> shuttle.ListTopicsRequest
+	7, // 3: shuttle.Shuttle.HealthCheck:input_type -> shuttle.HealthCheckRequest
+	2, // 4: shuttle.Shuttle.Publish:output_type -> shuttle.PublishResponse
+	4, // 5: shuttle.Shuttle.Subscribe:output_type -> shuttle.SubscribeResponse
+	5, // 6: shuttle.Shuttle.ListTopics:output_type -> shuttle.ListTopicsResponse
+	8, // 7: shuttle.Shuttle.HealthCheck:output_type -> shuttle.HealthCheckResponse
 	4, // [4:8] is the sub-list for method output_type
 	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -519,27 +519,27 @@ var file_proto_msgbus_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_proto_msgbus_proto_init() }
-func file_proto_msgbus_proto_init() {
-	if File_proto_msgbus_proto != nil {
+func init() { file_proto_shuttle_proto_init() }
+func file_proto_shuttle_proto_init() {
+	if File_proto_shuttle_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_msgbus_proto_rawDesc), len(file_proto_msgbus_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_shuttle_proto_rawDesc), len(file_proto_shuttle_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_msgbus_proto_goTypes,
-		DependencyIndexes: file_proto_msgbus_proto_depIdxs,
-		EnumInfos:         file_proto_msgbus_proto_enumTypes,
-		MessageInfos:      file_proto_msgbus_proto_msgTypes,
+		GoTypes:           file_proto_shuttle_proto_goTypes,
+		DependencyIndexes: file_proto_shuttle_proto_depIdxs,
+		EnumInfos:         file_proto_shuttle_proto_enumTypes,
+		MessageInfos:      file_proto_shuttle_proto_msgTypes,
 	}.Build()
-	File_proto_msgbus_proto = out.File
-	file_proto_msgbus_proto_goTypes = nil
-	file_proto_msgbus_proto_depIdxs = nil
+	File_proto_shuttle_proto = out.File
+	file_proto_shuttle_proto_goTypes = nil
+	file_proto_shuttle_proto_depIdxs = nil
 }

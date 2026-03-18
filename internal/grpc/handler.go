@@ -3,13 +3,13 @@ package server
 import (
 	"context"
 
-	"github.com/portbound/busser/internal/bus"
-	pb "github.com/portbound/busser/proto"
+	"github.com/portbound/shuttle/internal/bus"
+	pb "github.com/portbound/shuttle/proto"
 	"google.golang.org/grpc"
 )
 
 type Handler struct {
-	pb.UnimplementedMsgBusServiceServer
+	pb.UnimplementedShuttleServer
 	bus *bus.Bus
 }
 

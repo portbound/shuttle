@@ -1,9 +1,9 @@
 syntax = "proto3";
-package msgbus;
+package shuttle;
 
-option go_package = "github.com/portbound/msgbus/proto";
+option go_package = "github.com/portbound/shuttle/proto";
 
-service MsgBusService {
+service Shuttle {
   rpc Publish(PublishRequest) returns (PublishResponse);
   rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse);
   rpc ListTopics(ListTopicsRequest) returns (ListTopicsResponse);

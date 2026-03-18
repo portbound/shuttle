@@ -4,8 +4,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/portbound/busser/internal/server"
-	pb "github.com/portbound/busser/proto"
+	"github.com/portbound/shuttle/internal/grpc"
+	pb "github.com/portbound/shuttle/proto"
 	"google.golang.org/grpc"
 )
 
@@ -18,7 +18,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterMsgBusServiceServer(s, &server.Server{})
+	pb.RegisterShuttleServer(s, &server.Handler{})
 	log.Printf("server running on %s\n", port)
 
 	if err := s.Serve(l); err != nil {
