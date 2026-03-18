@@ -1,0 +1,48 @@
+syntax = "proto3";
+package msgbus;
+
+option go_package = "github.com/portbound/msgbus/proto";
+
+service MsgBusService {
+  rpc Publish(PublishRequest) returns (PublishResponse);
+  rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse);
+  rpc ListTopics(ListTopicsRequest) returns (ListTopicsResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message PublishRequest {
+  string topic = 1;
+  bytes payload = 2;
+}
+
+message PublishResponse {
+  string message_id = 1;
+  bool success = 2;
+}
+
+message SubscribeRequest {
+  string topic = 1;
+}
+
+message SubscribeResponse {
+  string message_id = 1;
+  string topic = 2;
+  bytes payload = 3;
+  int64 timestamp = 4;
+}
+
+message ListTopicsResponse {
+  repeated string topics = 1;
+}
+
+message ListTopicsRequest {}
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_SERVING = 1;
+    STATUS_NOT_SERVING = 2;
+    STATUS_SERVICE_UNKNOWN = 3;
+  }
+}
