@@ -36,7 +36,7 @@ func TestMsgBus_Publish(t *testing.T) {
 				return
 			}
 			if tt.wantErr {
-				t.Fatal("Publish() succeeded unexpectedly")
+				t.Errorf("Publish() succeeded unexpectedly")
 			}
 		})
 	}
@@ -53,6 +53,11 @@ func TestMsgBus_Subscribe(t *testing.T) {
 			topic:   "user-signup",
 			wantErr: false,
 		},
+		{
+			name:    "Empty Topic",
+			topic:   "",
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -61,12 +66,12 @@ func TestMsgBus_Subscribe(t *testing.T) {
 			err := b.Subscribe(t.Context(), tt.topic)
 			if err != nil {
 				if !tt.wantErr {
-					t.Errorf("Subscribe() error: %v", err)
+					t.Errorf("%s: %v", tt.name, err)
 				}
 				return
 			}
 			if tt.wantErr {
-				t.Fatal("Subscribe() succeeded unexpectedly")
+				t.Errorf("%s succeeded unexpectedly", tt.name)
 			}
 		})
 	}
