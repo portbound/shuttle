@@ -180,6 +180,7 @@ func (x *PublishResponse) GetSuccess() bool {
 type SubscribeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -217,6 +218,13 @@ func (*SubscribeRequest) Descriptor() ([]byte, []int) {
 func (x *SubscribeRequest) GetTopic() string {
 	if x != nil {
 		return x.Topic
+	}
+	return ""
+}
+
+func (x *SubscribeRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
 	}
 	return ""
 }
@@ -452,9 +460,10 @@ const file_proto_shuttle_proto_rawDesc = "" +
 	"\x0fPublishResponse\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
-	"\asuccess\x18\x02 \x01(\bR\asuccess\"(\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess\"C\n" +
 	"\x10SubscribeRequest\x12\x14\n" +
-	"\x05topic\x18\x01 \x01(\tR\x05topic\"\x80\x01\n" +
+	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x80\x01\n" +
 	"\x11SubscribeResponse\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x14\n" +
