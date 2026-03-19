@@ -21,9 +21,8 @@ var (
 )
 
 type Bus struct {
-	mu    sync.RWMutex
-	store Store
-	// topic -> group
+	mu       sync.RWMutex
+	store    Store
 	registry map[string]map[string][]*member
 }
 
@@ -104,14 +103,14 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 	return nil
 }
 
-func (b *Bus) Subscribe(ctx context.Context, groupId, topic string) (chan *Event, error) {
+func (b *Bus) Subscribe(ctx context.Context, topic, groupId string) (chan *Event, error) {
 	if topic == "" {
 		return nil, ErrEmptyTopic
 	}
 
 	m := &member{
 		id: uuid.NewString(),
-		ch: make(chan *Event),
+		ch: make(chan *Event, 100), // TODO: need to look into buffered/vs non buffered implication here
 	}
 
 	b.mu.Lock()
