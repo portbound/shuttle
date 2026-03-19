@@ -17,9 +17,9 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
-func (m *MemoryStore) Save(ctx context.Context, topic string, data []byte) error {
+func (m *MemoryStore) Save(ctx context.Context, e *Event) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.data[topic] = append(m.data[topic], data)
+	m.data[e.Topic] = append(m.data[e.Topic], e.Payload)
 	return nil
 }

@@ -3,11 +3,17 @@ package bus
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
+	"math/rand"
 	"sync"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Store interface {
-	Save(ctx context.Context, topic string, data []byte) error
+	Save(ctx context.Context, e *Event) error
 }
 
 var (
@@ -15,15 +21,29 @@ var (
 )
 
 type Bus struct {
-	mu          sync.RWMutex
-	store       Store
-	subscribers map[string][]chan []byte
+	mu    sync.RWMutex
+	store Store
+	// topic -> group
+	registry map[string]map[string][]*member
+}
+
+type Event struct {
+	Id        string
+	Topic     string
+	Timestamp time.Time
+	Payload   []byte
+}
+
+type member struct {
+	id string
+	ch chan *Event
 }
 
 func New(s Store) *Bus {
 	return &Bus{
-		store:       s,
-		subscribers: make(map[string][]chan []byte)}
+		store:    s,
+		registry: make(map[string]map[string][]*member),
+	}
 }
 
 func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
@@ -37,45 +57,85 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 		return ErrEmptyTopic
 	}
 
-	if err := b.store.Save(ctx, topic, data); err != nil {
-		return err
+	e := &Event{
+		Id:        uuid.NewString(),
+		Topic:     topic,
+		Timestamp: time.Now(),
+		Payload:   data,
+	}
+
+	if err := b.store.Save(ctx, e); err != nil {
+		return fmt.Errorf("save event: %v", err)
 	}
 
 	b.mu.RLock()
-	defer b.mu.RUnlock()
-	for _, ch := range b.subscribers[topic] {
-		ch <- data
+	groups := b.registry[topic]
+	b.mu.RUnlock()
+
+	for id, members := range groups {
+		if len(members) == 0 {
+			continue
+		}
+
+		var sent bool
+		startIdx := rand.Intn(len(members))
+
+		for i := 0; i < len(members); i++ {
+			idx := (startIdx + i) % len(members)
+			m := members[idx]
+
+			select {
+			case m.ch <- e:
+				sent = true
+			default:
+				continue
+			}
+
+			if sent {
+				break
+			}
+		}
+
+		if !sent {
+			log.Printf("Critical: Group %s is busy", id)
+		}
 	}
 
 	return nil
 }
 
-func (b *Bus) Subscribe(ctx context.Context, topic string) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
-
+func (b *Bus) Subscribe(ctx context.Context, groupId, topic string) (chan *Event, error) {
 	if topic == "" {
-		return ErrEmptyTopic
+		return nil, ErrEmptyTopic
 	}
 
-	ch := make(chan []byte)
+	m := &member{
+		id: uuid.NewString(),
+		ch: make(chan *Event),
+	}
 
 	b.mu.Lock()
-	b.subscribers[topic] = append(b.subscribers[topic], ch)
+	if _, ok := b.registry[topic]; !ok {
+		b.registry[topic] = make(map[string][]*member)
+	}
+	b.registry[topic][groupId] = append(b.registry[topic][groupId], m)
 	b.mu.Unlock()
 
 	go func() {
 		<-ctx.Done()
-
 		b.mu.Lock()
 		defer b.mu.Unlock()
 
-		// delete the channel from the slice
-		close(ch)
+		members := b.registry[topic][groupId]
+		for i, member := range members {
+			if member.id == m.id {
+				members[i] = members[len(members)-1]
+				b.registry[topic][groupId] = members[:len(members)-1]
+			}
+		}
+
+		close(m.ch)
 	}()
 
-	return nil
+	return m.ch, nil
 }

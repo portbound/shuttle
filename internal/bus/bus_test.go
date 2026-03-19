@@ -63,7 +63,7 @@ func TestMsgBus_Subscribe(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			store := NewMemoryStore()
 			b := New(store)
-			err := b.Subscribe(t.Context(), tt.topic)
+			ch, err := b.Subscribe(t.Context(), tt.topic)
 			if err != nil {
 				if !tt.wantErr {
 					t.Errorf("%s: %v", tt.name, err)
