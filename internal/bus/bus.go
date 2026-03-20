@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -19,7 +18,10 @@ type Store interface {
 }
 
 var (
-	ErrEmptyTopic = errors.New("topic cannot be empty")
+	ErrEmptyTopic      = errors.New("topic cannot be empty")
+	ErrPayloadTooLarge = errors.New("payload exceeds MaxPayloadSize")
+	ErrGroupBusy       = errors.New("consumers are fully saturated")
+	ErrNoSubscribers   = errors.New("no subscribers for topic")
 )
 
 type Bus struct {
@@ -101,14 +103,14 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 		}
 
 		if !sent {
-			log.Printf("Critical: Group %s is busy", group)
+			return fmt.Errorf("%s: %s", group, ErrGroupBusy)
 		}
 	}
 
 	return nil
 }
 
-func (b *Bus) Subscribe(ctx context.Context, topic, groupId string) (chan *Event, error) {
+func (b *Bus) Subscribe(ctx context.Context, topic, group string) (chan *Event, error) {
 	if topic == "" {
 		return nil, ErrEmptyTopic
 	}
@@ -123,7 +125,7 @@ func (b *Bus) Subscribe(ctx context.Context, topic, groupId string) (chan *Event
 	if _, ok := b.registry[topic]; !ok {
 		b.registry[topic] = make(map[string][]*subscriber)
 	}
-	b.registry[topic][groupId] = append(b.registry[topic][groupId], sub)
+	b.registry[topic][group] = append(b.registry[topic][group], sub)
 	b.mu.Unlock()
 
 	go func() {
@@ -131,11 +133,11 @@ func (b *Bus) Subscribe(ctx context.Context, topic, groupId string) (chan *Event
 		b.mu.Lock()
 		defer b.mu.Unlock()
 
-		subs := b.registry[topic][groupId]
+		subs := b.registry[topic][group]
 		for i, s := range subs {
 			if s.id == sub.id {
 				subs[i] = subs[len(subs)-1]
-				b.registry[topic][groupId] = subs[:len(subs)-1]
+				b.registry[topic][group] = subs[:len(subs)-1]
 			}
 		}
 
