@@ -115,7 +115,8 @@ func (b *Bus) Subscribe(ctx context.Context, topic, groupId string) (chan *Event
 
 	sub := &subscriber{
 		id: uuid.NewString(),
-		ch: make(chan *Event, 100), // TODO: need to look into buffered/vs non buffered implication here
+		ch: make(chan *Event, 1),
+		// need to use a buffered channel here to protect against a potential race condition. It's possiblethat as we add the first subscriber to a group, an *Event is published to the corresponding topic before Subscribe() returns to the caller and starts receiving on ch. Publish should prevent a deadlock with the default case in select, but then we'd end up logging an erroneous ErrGroupBusy
 	}
 
 	b.mu.Lock()

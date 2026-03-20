@@ -13,11 +13,48 @@ func TestMsgBus_Publish(t *testing.T) {
 		setupSubscribers func(t *testing.T, b *Bus)
 	}{
 		{
-			name:             "Standard Publish",
+			name:    "Standard Publish",
+			topic:   "user-signup",
+			payload: []byte(`{"id": 123}`),
+			wantErr: false,
+			setupSubscribers: func(t *testing.T, b *Bus) {
+				ch, _ := b.Subscribe(t.Context(), "user-signup", "user-signup-group")
+				go func() {
+					<-ch
+				}()
+			},
+		},
+		{
+			name:    "One subscriber available",
+			topic:   "user-signup",
+			payload: []byte("some bytes"),
+			wantErr: false,
+			setupSubscribers: func(t *testing.T, b *Bus) {
+				ch1, _ := b.Subscribe(t.Context(), "user-signup", "user-signup-group")
+				ch1 <- &Event{}
+
+				ch2, _ := b.Subscribe(t.Context(), "user-signup", "user-signup-group")
+				go func() {
+					<-ch2
+				}()
+			},
+		},
+		{
+			name:             "No subscribers",
 			topic:            "user-signup",
-			payload:          []byte(`{"id": 123}`),
-			wantErr:          false,
+			payload:          []byte("some bytes"),
+			wantErr:          true,
 			setupSubscribers: func(t *testing.T, b *Bus) {},
+		},
+		{
+			name:    "All subscribers busy",
+			topic:   "user-signup",
+			payload: []byte("some bytes"),
+			wantErr: true,
+			setupSubscribers: func(t *testing.T, b *Bus) {
+				ch, _ := b.Subscribe(t.Context(), "user-signup", "user-signup-group")
+				ch <- &Event{}
+			},
 		},
 		{
 			name:             "Empty Topic",
@@ -26,24 +63,6 @@ func TestMsgBus_Publish(t *testing.T) {
 			wantErr:          true,
 			setupSubscribers: func(t *testing.T, b *Bus) {},
 		},
-		{
-			name:    "All members busy",
-			topic:   "user-signup",
-			payload: []byte("some bytes"),
-			wantErr: true,
-			setupSubscribers: func(t *testing.T, b *Bus) {
-				b.Subscribe(t.Context(), "user-signup", "user-signup-group")
-			},
-		},
-		{
-			name:    "One member available",
-			topic:   "user-signup",
-			payload: []byte("some bytes"),
-			wantErr: true,
-			setupSubscribers: func(t *testing.T, b *Bus) {
-				b.Subscribe(t.Context(), "user-signup", "user-signup-group")
-				b.Subscribe(t.Context(), "user-signup", "user-signup-group")
-			},
 		{
 			name:             "Payload too large",
 			topic:            "user-signup",
@@ -58,16 +77,15 @@ func TestMsgBus_Publish(t *testing.T) {
 			b := New(store)
 			tt.setupSubscribers(t, b)
 
-			// TODO: we need to figure out whether this should be buffered or unbuffered. This changes the behavior of the test. Unbuffered channels will not accept messages unless we explicitly receive from them. Buffered channels will receive until the buffer is full. I think generally it's better to use buffered in prod, but using unbuffered makes the tests easier.
 			err := b.Publish(t.Context(), tt.topic, tt.payload)
 			if err != nil {
 				if !tt.wantErr {
-					t.Errorf("Publish() error: %v", err)
+					t.Errorf("error: %v", err)
 				}
 				return
 			}
 			if tt.wantErr {
-				t.Errorf("Publish() succeeded unexpectedly")
+				t.Errorf("succeeded unexpectedly")
 			}
 		})
 	}
