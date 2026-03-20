@@ -128,7 +128,6 @@ func (x *PublishRequest) GetPayload() []byte {
 type PublishResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -168,13 +167,6 @@ func (x *PublishResponse) GetMessageId() string {
 		return x.MessageId
 	}
 	return ""
-}
-
-func (x *PublishResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
 }
 
 type SubscribeRequest struct {
@@ -456,11 +448,10 @@ const file_proto_shuttle_proto_rawDesc = "" +
 	"\x13proto/shuttle.proto\x12\ashuttle\"@\n" +
 	"\x0ePublishRequest\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x18\n" +
-	"\apayload\x18\x02 \x01(\fR\apayload\"J\n" +
+	"\apayload\x18\x02 \x01(\fR\apayload\"0\n" +
 	"\x0fPublishResponse\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
-	"\asuccess\x18\x02 \x01(\bR\asuccess\"C\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\"C\n" +
 	"\x10SubscribeRequest\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x80\x01\n" +

@@ -17,13 +17,20 @@ func New(b *bus.Bus) *Handler {
 	return &Handler{bus: b}
 }
 
+// TODO: Not sure about this signature... we're returning a response and an error, but the publish response includes a success boolean... so we could either
 func (h *Handler) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
-	err := h.bus.Publish(ctx, req.Topic, req.Payload)
+	msgId, err := h.bus.Publish(ctx, req.Topic, req.Payload)
 	if err != nil {
-		return nil, err
+		return &pb.PublishResponse{
+			MessageId: "",
+			Success:   false,
+		}, nil
 	}
 
-	return nil, nil
+	return &pb.PublishResponse{
+		MessageId: msgId,
+		Success:   false,
+	}, nil
 }
 
 func (h *Handler) HealthCheck(context.Context, *pb.HealthCheckRequest) (*pb.HealthCheckResponse, error) {

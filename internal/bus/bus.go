@@ -49,19 +49,20 @@ func New(s Store) *Bus {
 	}
 }
 
-func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
+// TODO: I think we need to return the messageId here
+func (b *Bus) Publish(ctx context.Context, topic string, data []byte) (string, error) {
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return "", ctx.Err()
 	default:
 	}
 
 	if topic == "" {
-		return ErrEmptyTopic
+		return "", ErrEmptyTopic
 	}
 
 	if len(data) > MaxPayloadSize {
-		return ErrPayloadTooLarge
+		return "", ErrPayloadTooLarge
 	}
 	e := &Event{
 		Id:        uuid.NewString(),
@@ -70,13 +71,19 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 		Payload:   data,
 	}
 
-	if err := b.store.Save(ctx, e); err != nil {
-		return fmt.Errorf("save event: %v", err)
-	}
+	// TODO: removing the storage for now, I think we're going to keep this in memory until we decide to actually add retry logic
+
+	// if err := b.store.Save(ctx, e); err != nil {
+	// 	return "", fmt.Errorf("save event: %v", err)
+	// }
 
 	b.mu.RLock()
-	groups := b.registry[topic]
+	groups, ok := b.registry[topic]
 	b.mu.RUnlock()
+
+	if !ok {
+		return e.Id, nil
+	}
 
 	for group, subs := range groups {
 		if len(subs) == 0 {
@@ -93,6 +100,8 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 			select {
 			case sub.ch <- e:
 				sent = true
+			case <-ctx.Done():
+				return "", ctx.Err()
 			default:
 				continue
 			}
@@ -103,11 +112,11 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 		}
 
 		if !sent {
-			return fmt.Errorf("%s: %s", group, ErrGroupBusy)
+			return "", fmt.Errorf("%s: %w", group, ErrGroupBusy)
 		}
 	}
 
-	return nil
+	return e.Id, nil
 }
 
 func (b *Bus) Subscribe(ctx context.Context, topic, group string) (chan *Event, error) {
@@ -138,6 +147,7 @@ func (b *Bus) Subscribe(ctx context.Context, topic, group string) (chan *Event, 
 			if s.id == sub.id {
 				subs[i] = subs[len(subs)-1]
 				b.registry[topic][group] = subs[:len(subs)-1]
+				break
 			}
 		}
 
