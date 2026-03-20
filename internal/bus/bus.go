@@ -12,6 +12,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const MaxPayloadSize = 256 * 1024
+
 type Store interface {
 	Save(ctx context.Context, e *Event) error
 }
@@ -56,6 +58,9 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) error {
 		return ErrEmptyTopic
 	}
 
+	if len(data) > MaxPayloadSize {
+		return ErrPayloadTooLarge
+	}
 	e := &Event{
 		Id:        uuid.NewString(),
 		Topic:     topic,

@@ -44,6 +44,12 @@ func TestMsgBus_Publish(t *testing.T) {
 				b.Subscribe(t.Context(), "user-signup", "user-signup-group")
 				b.Subscribe(t.Context(), "user-signup", "user-signup-group")
 			},
+		{
+			name:             "Payload too large",
+			topic:            "user-signup",
+			payload:          make([]byte, 257*1024),
+			wantErr:          true,
+			setupSubscribers: func(t *testing.T, b *Bus) {},
 		},
 	}
 	for _, tt := range tests {
