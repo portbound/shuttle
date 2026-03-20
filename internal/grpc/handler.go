@@ -35,8 +35,7 @@ func (h *Handler) ListTopics(context.Context, *pb.ListTopicsRequest) (*pb.ListTo
 }
 
 func (h *Handler) Subscribe(req *pb.SubscribeRequest, stream grpc.ServerStreamingServer[pb.SubscribeResponse]) error {
-	ctx := context.Background()
-	ch, err := h.bus.Subscribe(ctx, req.GroupId, req.Topic)
+	ch, err := h.bus.Subscribe(stream.Context(), req.GroupId, req.Topic)
 	if err != nil {
 		return err
 	}
@@ -46,7 +45,7 @@ func (h *Handler) Subscribe(req *pb.SubscribeRequest, stream grpc.ServerStreamin
 			MessageId: e.Id,
 			Topic:     e.Topic,
 			Payload:   e.Payload,
-			Timestamp: e.Timestamp.Unix(), // TODO: should the *Event just be storing this as unix timestamp instead? Or is this conversion fine
+			Timestamp: e.Timestamp.UnixNano(),
 		})
 	}
 
