@@ -133,6 +133,14 @@ func (b *Bus) Subscribe(ctx context.Context, topic, groupId string) (chan *Event
 			}
 		}
 
+		if len(b.registry[topic][group]) == 0 {
+			delete(b.registry[topic], group)
+		}
+
+		if len(b.registry[topic]) == 0 {
+			delete(b.registry, topic)
+		}
+
 		close(sub.ch)
 	}()
 
