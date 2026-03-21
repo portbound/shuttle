@@ -73,8 +73,7 @@ func TestMsgBus_Publish(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := NewMemoryStore()
-			b := New(store)
+			b := New()
 			tt.setupSubscribers(t, b)
 
 			err := b.Publish(t.Context(), tt.topic, tt.payload)
@@ -113,8 +112,7 @@ func TestMsgBus_Subscribe(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := NewMemoryStore()
-			b := New(store)
+			b := New()
 			_, err := b.Subscribe(t.Context(), tt.topic, tt.groupId)
 			if err != nil {
 				if !tt.wantErr {

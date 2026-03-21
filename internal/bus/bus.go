@@ -13,10 +13,6 @@ import (
 
 const MaxPayloadSize = 256 * 1024
 
-type Store interface {
-	Save(ctx context.Context, e *Event) error
-}
-
 var (
 	ErrEmptyTopic      = errors.New("topic cannot be empty")
 	ErrPayloadTooLarge = errors.New("payload exceeds MaxPayloadSize")
@@ -26,7 +22,6 @@ var (
 
 type Bus struct {
 	mu       sync.RWMutex
-	store    Store
 	registry map[string]map[string][]*subscriber
 }
 
@@ -42,9 +37,8 @@ type subscriber struct {
 	ch chan *Event
 }
 
-func New(s Store) *Bus {
+func New() *Bus {
 	return &Bus{
-		store:    s,
 		registry: make(map[string]map[string][]*subscriber),
 	}
 }
@@ -70,12 +64,6 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) (string, e
 		Timestamp: time.Now(),
 		Payload:   data,
 	}
-
-	// TODO: removing the storage for now, I think we're going to keep this in memory until we decide to actually add retry logic
-
-	// if err := b.store.Save(ctx, e); err != nil {
-	// 	return "", fmt.Errorf("save event: %v", err)
-	// }
 
 	b.mu.RLock()
 	groups, ok := b.registry[topic]
