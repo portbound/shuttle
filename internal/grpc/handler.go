@@ -2,10 +2,13 @@ package server
 
 import (
 	"context"
+	"errors"
 
 	"github.com/portbound/shuttle/internal/bus"
 	pb "github.com/portbound/shuttle/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Handler struct {
@@ -17,28 +20,41 @@ func New(b *bus.Bus) *Handler {
 	return &Handler{bus: b}
 }
 
-// TODO: Not sure about this signature... we're returning a response and an error, but the publish response includes a success boolean... so we could either
 func (h *Handler) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
 	msgId, err := h.bus.Publish(ctx, req.Topic, req.Payload)
 	if err != nil {
-		return &pb.PublishResponse{
-			MessageId: "",
-			Success:   false,
-		}, nil
+		switch {
+		case errors.Is(err, ctx.Err()):
+			return nil, status.Error(codes.DeadlineExceeded, err.Error())
+		case errors.Is(err, bus.ErrEmptyTopic):
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		case errors.Is(err, bus.ErrPayloadTooLarge):
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		case errors.Is(err, bus.ErrGroupBusy):
+			return nil, status.Error(codes.ResourceExhausted, err.Error())
+		default:
+			return nil, status.Error(codes.Unknown, err.Error())
+		}
 	}
 
 	return &pb.PublishResponse{
 		MessageId: msgId,
-		Success:   false,
 	}, nil
 }
 
 func (h *Handler) HealthCheck(context.Context, *pb.HealthCheckRequest) (*pb.HealthCheckResponse, error) {
-	return nil, nil
+	return &pb.HealthCheckResponse{}, nil
 }
 
-func (h *Handler) ListTopics(context.Context, *pb.ListTopicsRequest) (*pb.ListTopicsResponse, error) {
-	return nil, nil
+func (h *Handler) ListTopics(ctx context.Context, req *pb.ListTopicsRequest) (*pb.ListTopicsResponse, error) {
+	topics, err := h.bus.Topics(ctx)
+	if err != nil {
+		return nil, status.Error(codes.DeadlineExceeded, err.Error())
+	}
+
+	return &pb.ListTopicsResponse{
+		Topics: topics,
+	}, nil
 }
 
 func (h *Handler) Subscribe(req *pb.SubscribeRequest, stream grpc.ServerStreamingServer[pb.SubscribeResponse]) error {
