@@ -1,6 +1,7 @@
 package bus
 
 import (
+	"slices"
 	"testing"
 )
 
@@ -40,13 +41,6 @@ func TestMsgBus_Publish(t *testing.T) {
 			},
 		},
 		{
-			name:             "No subscribers",
-			topic:            "user-signup",
-			payload:          []byte("some bytes"),
-			wantErr:          true,
-			setupSubscribers: func(t *testing.T, b *Bus) {},
-		},
-		{
 			name:    "All subscribers busy",
 			topic:   "user-signup",
 			payload: []byte("some bytes"),
@@ -76,10 +70,10 @@ func TestMsgBus_Publish(t *testing.T) {
 			b := New()
 			tt.setupSubscribers(t, b)
 
-			err := b.Publish(t.Context(), tt.topic, tt.payload)
+			_, err := b.Publish(t.Context(), tt.topic, tt.payload)
 			if err != nil {
 				if !tt.wantErr {
-					t.Errorf("error: %v", err)
+					t.Errorf("failed unexpectedly: %v", err)
 				}
 				return
 			}
@@ -116,12 +110,48 @@ func TestMsgBus_Subscribe(t *testing.T) {
 			_, err := b.Subscribe(t.Context(), tt.topic, tt.groupId)
 			if err != nil {
 				if !tt.wantErr {
-					t.Errorf("%s: %v", tt.name, err)
+					t.Errorf("failed unexpectedly: %v", err)
 				}
 				return
 			}
 			if tt.wantErr {
 				t.Errorf("%s succeeded unexpectedly", tt.name)
+			}
+		})
+	}
+}
+
+func TestBus_Topics(t *testing.T) {
+	tests := []struct {
+		name    string
+		want    []string
+		wantErr bool
+	}{
+		{
+			name:    "Standard Topics",
+			want:    []string{"user-signup", "stock-updates", "heartbeat"},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := New()
+			for _, topic := range tt.want {
+				b.registry[topic] = make(map[string][]*subscriber)
+			}
+			got, err := b.Topics(t.Context())
+			if err != nil {
+				if !tt.wantErr {
+					t.Errorf("failed unexpectedly: %v", err)
+				}
+				return
+			}
+			if tt.wantErr {
+				t.Errorf("%s succeeded unexpectedly", tt.name)
+			}
+
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("got: %v want: %v", got, tt.want)
 			}
 		})
 	}

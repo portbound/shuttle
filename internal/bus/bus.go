@@ -17,7 +17,6 @@ var (
 	ErrEmptyTopic      = errors.New("topic cannot be empty")
 	ErrPayloadTooLarge = errors.New("payload exceeds MaxPayloadSize")
 	ErrGroupBusy       = errors.New("consumers are fully saturated")
-	ErrNoSubscribers   = errors.New("no subscribers for topic")
 )
 
 type Bus struct {
@@ -43,7 +42,6 @@ func New() *Bus {
 	}
 }
 
-// TODO: I think we need to return the messageId here
 func (b *Bus) Publish(ctx context.Context, topic string, data []byte) (string, error) {
 	select {
 	case <-ctx.Done():
@@ -115,7 +113,6 @@ func (b *Bus) Subscribe(ctx context.Context, topic, group string) (chan *Event, 
 	sub := &subscriber{
 		id: uuid.NewString(),
 		ch: make(chan *Event, 1),
-		// need to use a buffered channel here to protect against a potential race condition. It's possiblethat as we add the first subscriber to a group, an *Event is published to the corresponding topic before Subscribe() returns to the caller and starts receiving on ch. Publish should prevent a deadlock with the default case in select, but then we'd end up logging an erroneous ErrGroupBusy
 	}
 
 	b.mu.Lock()
@@ -151,4 +148,21 @@ func (b *Bus) Subscribe(ctx context.Context, topic, group string) (chan *Event, 
 	}()
 
 	return sub.ch, nil
+}
+
+func (b *Bus) Topics(ctx context.Context) ([]string, error) {
+	b.mu.RLock()
+	var topics []string
+	for topic := range b.registry {
+		select {
+		case <-ctx.Done():
+			b.mu.Unlock()
+			return nil, ctx.Err()
+		default:
+			topics = append(topics, topic)
+		}
+	}
+	b.mu.RUnlock()
+
+	return topics, nil
 }
