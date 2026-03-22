@@ -7,7 +7,6 @@ service Shuttle {
   rpc Publish(PublishRequest) returns (PublishResponse);
   rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse);
   rpc ListTopics(ListTopicsRequest) returns (ListTopicsResponse);
-  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
 }
 
 message PublishRequest {
@@ -36,13 +35,3 @@ message ListTopicsResponse {
 }
 
 message ListTopicsRequest {}
-message HealthCheckRequest {}
-
-message HealthCheckResponse {
-  enum Status {
-    STATUS_UNSPECIFIED = 0;
-    STATUS_SERVING = 1;
-    STATUS_NOT_SERVING = 2;
-    STATUS_SERVICE_UNKNOWN = 3;
-  }
-}

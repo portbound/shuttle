@@ -21,58 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type HealthCheckResponse_Status int32
-
-const (
-	HealthCheckResponse_STATUS_UNSPECIFIED     HealthCheckResponse_Status = 0
-	HealthCheckResponse_STATUS_SERVING         HealthCheckResponse_Status = 1
-	HealthCheckResponse_STATUS_NOT_SERVING     HealthCheckResponse_Status = 2
-	HealthCheckResponse_STATUS_SERVICE_UNKNOWN HealthCheckResponse_Status = 3
-)
-
-// Enum value maps for HealthCheckResponse_Status.
-var (
-	HealthCheckResponse_Status_name = map[int32]string{
-		0: "STATUS_UNSPECIFIED",
-		1: "STATUS_SERVING",
-		2: "STATUS_NOT_SERVING",
-		3: "STATUS_SERVICE_UNKNOWN",
-	}
-	HealthCheckResponse_Status_value = map[string]int32{
-		"STATUS_UNSPECIFIED":     0,
-		"STATUS_SERVING":         1,
-		"STATUS_NOT_SERVING":     2,
-		"STATUS_SERVICE_UNKNOWN": 3,
-	}
-)
-
-func (x HealthCheckResponse_Status) Enum() *HealthCheckResponse_Status {
-	p := new(HealthCheckResponse_Status)
-	*p = x
-	return p
-}
-
-func (x HealthCheckResponse_Status) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (HealthCheckResponse_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_shuttle_proto_enumTypes[0].Descriptor()
-}
-
-func (HealthCheckResponse_Status) Type() protoreflect.EnumType {
-	return &file_proto_shuttle_proto_enumTypes[0]
-}
-
-func (x HealthCheckResponse_Status) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use HealthCheckResponse_Status.Descriptor instead.
-func (HealthCheckResponse_Status) EnumDescriptor() ([]byte, []int) {
-	return file_proto_shuttle_proto_rawDescGZIP(), []int{7, 0}
-}
-
 type PublishRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
@@ -369,78 +317,6 @@ func (*ListTopicsRequest) Descriptor() ([]byte, []int) {
 	return file_proto_shuttle_proto_rawDescGZIP(), []int{5}
 }
 
-type HealthCheckRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HealthCheckRequest) Reset() {
-	*x = HealthCheckRequest{}
-	mi := &file_proto_shuttle_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HealthCheckRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HealthCheckRequest) ProtoMessage() {}
-
-func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_shuttle_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
-func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_proto_shuttle_proto_rawDescGZIP(), []int{6}
-}
-
-type HealthCheckResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HealthCheckResponse) Reset() {
-	*x = HealthCheckResponse{}
-	mi := &file_proto_shuttle_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HealthCheckResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HealthCheckResponse) ProtoMessage() {}
-
-func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_shuttle_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
-func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_proto_shuttle_proto_rawDescGZIP(), []int{7}
-}
-
 var File_proto_shuttle_proto protoreflect.FileDescriptor
 
 const file_proto_shuttle_proto_rawDesc = "" +
@@ -463,20 +339,12 @@ const file_proto_shuttle_proto_rawDesc = "" +
 	"\ttimestamp\x18\x04 \x01(\x03R\ttimestamp\",\n" +
 	"\x12ListTopicsResponse\x12\x16\n" +
 	"\x06topics\x18\x01 \x03(\tR\x06topics\"\x13\n" +
-	"\x11ListTopicsRequest\"\x14\n" +
-	"\x12HealthCheckRequest\"\x7f\n" +
-	"\x13HealthCheckResponse\"h\n" +
-	"\x06Status\x12\x16\n" +
-	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
-	"\x0eSTATUS_SERVING\x10\x01\x12\x16\n" +
-	"\x12STATUS_NOT_SERVING\x10\x02\x12\x1a\n" +
-	"\x16STATUS_SERVICE_UNKNOWN\x10\x032\x9e\x02\n" +
+	"\x11ListTopicsRequest2\xd4\x01\n" +
 	"\aShuttle\x12<\n" +
 	"\aPublish\x12\x17.shuttle.PublishRequest\x1a\x18.shuttle.PublishResponse\x12D\n" +
 	"\tSubscribe\x12\x19.shuttle.SubscribeRequest\x1a\x1a.shuttle.SubscribeResponse0\x01\x12E\n" +
 	"\n" +
-	"ListTopics\x12\x1a.shuttle.ListTopicsRequest\x1a\x1b.shuttle.ListTopicsResponse\x12H\n" +
-	"\vHealthCheck\x12\x1b.shuttle.HealthCheckRequest\x1a\x1c.shuttle.HealthCheckResponseB$Z\"github.com/portbound/shuttle/protob\x06proto3"
+	"ListTopics\x12\x1a.shuttle.ListTopicsRequest\x1a\x1b.shuttle.ListTopicsResponseB$Z\"github.com/portbound/shuttle/protob\x06proto3"
 
 var (
 	file_proto_shuttle_proto_rawDescOnce sync.Once
@@ -490,30 +358,24 @@ func file_proto_shuttle_proto_rawDescGZIP() []byte {
 	return file_proto_shuttle_proto_rawDescData
 }
 
-var file_proto_shuttle_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_shuttle_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_proto_shuttle_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_proto_shuttle_proto_goTypes = []any{
-	(HealthCheckResponse_Status)(0), // 0: shuttle.HealthCheckResponse.Status
-	(*PublishRequest)(nil),          // 1: shuttle.PublishRequest
-	(*PublishResponse)(nil),         // 2: shuttle.PublishResponse
-	(*SubscribeRequest)(nil),        // 3: shuttle.SubscribeRequest
-	(*SubscribeResponse)(nil),       // 4: shuttle.SubscribeResponse
-	(*ListTopicsResponse)(nil),      // 5: shuttle.ListTopicsResponse
-	(*ListTopicsRequest)(nil),       // 6: shuttle.ListTopicsRequest
-	(*HealthCheckRequest)(nil),      // 7: shuttle.HealthCheckRequest
-	(*HealthCheckResponse)(nil),     // 8: shuttle.HealthCheckResponse
+	(*PublishRequest)(nil),     // 0: shuttle.PublishRequest
+	(*PublishResponse)(nil),    // 1: shuttle.PublishResponse
+	(*SubscribeRequest)(nil),   // 2: shuttle.SubscribeRequest
+	(*SubscribeResponse)(nil),  // 3: shuttle.SubscribeResponse
+	(*ListTopicsResponse)(nil), // 4: shuttle.ListTopicsResponse
+	(*ListTopicsRequest)(nil),  // 5: shuttle.ListTopicsRequest
 }
 var file_proto_shuttle_proto_depIdxs = []int32{
-	1, // 0: shuttle.Shuttle.Publish:input_type -> shuttle.PublishRequest
-	3, // 1: shuttle.Shuttle.Subscribe:input_type -> shuttle.SubscribeRequest
-	6, // 2: shuttle.Shuttle.ListTopics:input_type -> shuttle.ListTopicsRequest
-	7, // 3: shuttle.Shuttle.HealthCheck:input_type -> shuttle.HealthCheckRequest
-	2, // 4: shuttle.Shuttle.Publish:output_type -> shuttle.PublishResponse
-	4, // 5: shuttle.Shuttle.Subscribe:output_type -> shuttle.SubscribeResponse
-	5, // 6: shuttle.Shuttle.ListTopics:output_type -> shuttle.ListTopicsResponse
-	8, // 7: shuttle.Shuttle.HealthCheck:output_type -> shuttle.HealthCheckResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
+	0, // 0: shuttle.Shuttle.Publish:input_type -> shuttle.PublishRequest
+	2, // 1: shuttle.Shuttle.Subscribe:input_type -> shuttle.SubscribeRequest
+	5, // 2: shuttle.Shuttle.ListTopics:input_type -> shuttle.ListTopicsRequest
+	1, // 3: shuttle.Shuttle.Publish:output_type -> shuttle.PublishResponse
+	3, // 4: shuttle.Shuttle.Subscribe:output_type -> shuttle.SubscribeResponse
+	4, // 5: shuttle.Shuttle.ListTopics:output_type -> shuttle.ListTopicsResponse
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -529,14 +391,13 @@ func file_proto_shuttle_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_shuttle_proto_rawDesc), len(file_proto_shuttle_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   8,
+			NumEnums:      0,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_proto_shuttle_proto_goTypes,
 		DependencyIndexes: file_proto_shuttle_proto_depIdxs,
-		EnumInfos:         file_proto_shuttle_proto_enumTypes,
 		MessageInfos:      file_proto_shuttle_proto_msgTypes,
 	}.Build()
 	File_proto_shuttle_proto = out.File
