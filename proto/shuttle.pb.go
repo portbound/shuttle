@@ -120,7 +120,7 @@ func (x *PublishResponse) GetMessageId() string {
 type SubscribeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
-	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	Group         string                 `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -162,9 +162,9 @@ func (x *SubscribeRequest) GetTopic() string {
 	return ""
 }
 
-func (x *SubscribeRequest) GetGroupId() string {
+func (x *SubscribeRequest) GetGroup() string {
 	if x != nil {
-		return x.GroupId
+		return x.Group
 	}
 	return ""
 }
@@ -327,10 +327,10 @@ const file_proto_shuttle_proto_rawDesc = "" +
 	"\apayload\x18\x02 \x01(\fR\apayload\"0\n" +
 	"\x0fPublishResponse\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\"C\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\">\n" +
 	"\x10SubscribeRequest\x12\x14\n" +
-	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x19\n" +
-	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x80\x01\n" +
+	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x14\n" +
+	"\x05group\x18\x02 \x01(\tR\x05group\"\x80\x01\n" +
 	"\x11SubscribeResponse\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x14\n" +

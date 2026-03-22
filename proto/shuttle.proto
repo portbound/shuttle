@@ -20,7 +20,7 @@ message PublishResponse {
 
 message SubscribeRequest {
   string topic = 1;
-  string group_id = 2;
+  string group = 2;
 }
 
 message SubscribeResponse {
