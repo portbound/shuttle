@@ -1,4 +1,4 @@
-package server
+package handler
 
 import (
 	"context"
@@ -40,10 +40,6 @@ func (h *Handler) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publ
 	return &pb.PublishResponse{
 		MessageId: msgId,
 	}, nil
-}
-
-func (h *Handler) HealthCheck(context.Context, *pb.HealthCheckRequest) (*pb.HealthCheckResponse, error) {
-	return &pb.HealthCheckResponse{}, nil
 }
 
 func (h *Handler) ListTopics(ctx context.Context, req *pb.ListTopicsRequest) (*pb.ListTopicsResponse, error) {
