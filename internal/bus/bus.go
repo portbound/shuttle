@@ -56,6 +56,7 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) (string, e
 	if len(data) > MaxPayloadSize {
 		return "", ErrPayloadTooLarge
 	}
+
 	e := &Event{
 		Id:        uuid.NewString(),
 		Topic:     topic,

@@ -1,4 +1,4 @@
-package handler
+package server
 
 import (
 	"context"
@@ -11,17 +11,17 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Handler struct {
+type Server struct {
 	pb.UnimplementedShuttleServer
 	bus *bus.Bus
 }
 
-func New(b *bus.Bus) *Handler {
-	return &Handler{bus: b}
+func New(b *bus.Bus) *Server {
+	return &Server{bus: b}
 }
 
-func (h *Handler) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
-	msgId, err := h.bus.Publish(ctx, req.Topic, req.Payload)
+func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.PublishResponse, error) {
+	msgId, err := s.bus.Publish(ctx, req.Topic, req.Payload)
 	if err != nil {
 		switch {
 		case errors.Is(err, ctx.Err()):
@@ -33,7 +33,7 @@ func (h *Handler) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publ
 		case errors.Is(err, bus.ErrGroupBusy):
 			return nil, status.Error(codes.ResourceExhausted, err.Error())
 		default:
-			return nil, status.Error(codes.Unknown, err.Error())
+			return nil, status.Error(codes.Unavailable, err.Error())
 		}
 	}
 
@@ -42,8 +42,8 @@ func (h *Handler) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publ
 	}, nil
 }
 
-func (h *Handler) ListTopics(ctx context.Context, req *pb.ListTopicsRequest) (*pb.ListTopicsResponse, error) {
-	topics, err := h.bus.Topics(ctx)
+func (s *Server) ListTopics(ctx context.Context, req *pb.ListTopicsRequest) (*pb.ListTopicsResponse, error) {
+	topics, err := s.bus.Topics(ctx)
 	if err != nil {
 		return nil, status.Error(codes.DeadlineExceeded, err.Error())
 	}
@@ -53,8 +53,8 @@ func (h *Handler) ListTopics(ctx context.Context, req *pb.ListTopicsRequest) (*p
 	}, nil
 }
 
-func (h *Handler) Subscribe(req *pb.SubscribeRequest, stream grpc.ServerStreamingServer[pb.SubscribeResponse]) error {
-	ch, err := h.bus.Subscribe(stream.Context(), req.GroupId, req.Topic)
+func (s *Server) Subscribe(req *pb.SubscribeRequest, stream grpc.ServerStreamingServer[pb.SubscribeResponse]) error {
+	ch, err := s.bus.Subscribe(stream.Context(), req.GroupId, req.Topic)
 	if err != nil {
 		return err
 	}
