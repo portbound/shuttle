@@ -4,16 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	pb "github.com/portbound/shuttle/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/status"
 )
 
 const MaxPayloadSize = 256 * 1024
 const Service = "shuttle.Shuttle"
+
+type Event struct {
+	MessageId string
+	Payload   []byte
+}
 
 var (
 	ErrEmptyTopic      = errors.New("topic cannot be empty")
@@ -34,12 +42,6 @@ var serviceConfig = `{
             }]
         }`
 
-type Client struct {
-	shuttleClient pb.ShuttleClient
-	healthClient  grpc_health_v1.HealthClient
-	conn          *grpc.ClientConn
-}
-
 type options struct {
 	ctx   context.Context
 	creds credentials.TransportCredentials
@@ -59,15 +61,22 @@ func WithTLS(c credentials.TransportCredentials) Option {
 	}
 }
 
-// target := os.Getenv("SHUTTLE_SERVER_ADDR")
-//
-//	if target == "" {
-//		target = "localhost:50051"
-//	}
-//
-// addr := fmt.Sprintf("dns:///%s", target)
+type Client interface {
+	Publish(ctx context.Context, topic string, data []byte) (string, error)
+	Subscribe(ctx context.Context, topic, group string) (chan *Event, error)
+	ListTopics(ctx context.Context, in *pb.ListTopicsRequest, opts ...grpc.CallOption) ([]string, error)
+	CheckHealth(ctx context.Context) (grpc_health_v1.HealthCheckResponse_ServingStatus, error)
+	WatchHealth(ctx context.Context) (grpc_health_v1.Health_WatchClient, error)
+	Close() error
+}
 
-func New(addr string, opts ...Option) (*Client, error) {
+type client struct {
+	shuttleClient pb.ShuttleClient
+	healthClient  grpc_health_v1.HealthClient
+	conn          *grpc.ClientConn
+}
+
+func New(addr string, opts ...Option) (Client, error) {
 	cfg := &options{
 		creds: insecure.NewCredentials(),
 	}
@@ -84,50 +93,109 @@ func New(addr string, opts ...Option) (*Client, error) {
 	shuttleClient := pb.NewShuttleClient(conn)
 	healthClient := grpc_health_v1.NewHealthClient(conn)
 
-	return &Client{
+	return &client{
 		shuttleClient: shuttleClient,
 		healthClient:  healthClient,
 		conn:          conn,
 	}, nil
 }
 
-func (c *Client) Publish(ctx context.Context, topic string, data []byte) (*pb.PublishResponse, error) {
-	// TODO: validate user input -> need to move sentinel errs out of bus.go
+func (c *client) Publish(ctx context.Context, topic string, data []byte) (string, error) {
+	if topic == "" {
+		return "", ErrEmptyTopic
+	}
+
+	if len(data) > MaxPayloadSize {
+		return "", ErrPayloadTooLarge
+	}
 
 	req := &pb.PublishRequest{
 		Topic:   topic,
 		Payload: data,
 	}
 
-	return c.shuttleClient.Publish(ctx, req)
+	resp, err := c.shuttleClient.Publish(ctx, req)
+	if err != nil {
+		if s, ok := status.FromError(err); ok && s.Code() == codes.ResourceExhausted {
+			return "", ErrGroupBusy
+		}
+		return "", err
+	}
+
+	return resp.MessageId, nil
 }
 
-func (c *Client) Subscribe(ctx context.Context, topic, group string) (grpc.ServerStreamingClient[pb.SubscribeResponse], error) {
+func (c *client) Subscribe(ctx context.Context, topic, group string) (chan *Event, error) {
+	if topic == "" {
+		return nil, ErrEmptyTopic
+	}
+
 	req := &pb.SubscribeRequest{
 		Topic: topic,
 		Group: group,
 	}
 
-	return c.shuttleClient.Subscribe(ctx, req)
+	stream, err := c.shuttleClient.Subscribe(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	ch := make(chan *Event)
+
+	go func() {
+		defer close(ch)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				event, err := stream.Recv()
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						return
+					}
+				}
+
+				ch <- &Event{
+					MessageId: event.MessageId,
+					Payload:   event.Payload,
+				}
+			}
+		}
+	}()
+
+	return ch, nil
 }
 
-func (c *Client) ListTopics(ctx context.Context, in *pb.ListTopicsRequest, opts ...grpc.CallOption) (*pb.ListTopicsResponse, error) {
+func (c *client) ListTopics(ctx context.Context, in *pb.ListTopicsRequest, opts ...grpc.CallOption) ([]string, error) {
 	req := &pb.ListTopicsRequest{}
-	return c.shuttleClient.ListTopics(ctx, req)
+	resp, err := c.shuttleClient.ListTopics(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Topics, nil
 }
 
-func (c *Client) CheckHealth(ctx context.Context) (grpc_health_v1.HealthCheckResponse_ServingStatus, error) {
+// TODO: need to make this signature gRPC agnostic
+func (c *client) CheckHealth(ctx context.Context) (grpc_health_v1.HealthCheckResponse_ServingStatus, error) {
 	req := &grpc_health_v1.HealthCheckRequest{Service: Service}
 
-	res, err := c.healthClient.Check(ctx, req)
+	resp, err := c.healthClient.Check(ctx, req)
 	if err != nil {
 		return grpc_health_v1.HealthCheckResponse_UNKNOWN, err
 	}
 
-	return res.Status, nil
+	return resp.Status, nil
 }
 
-func (c *Client) WatchHealth(ctx context.Context) (grpc_health_v1.Health_WatchClient, error) {
+// TODO: need to make this signature gRPC agnostic
+func (c *client) WatchHealth(ctx context.Context) (grpc_health_v1.Health_WatchClient, error) {
 	req := &grpc_health_v1.HealthCheckRequest{Service: Service}
 	return c.healthClient.Watch(ctx, req)
+}
+
+func (c *client) Close() error {
+	return c.conn.Close()
 }
