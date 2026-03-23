@@ -24,16 +24,16 @@ func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publi
 	msgId, err := s.bus.Publish(ctx, req.Topic, req.Payload)
 	if err != nil {
 		switch {
-		case errors.Is(err, ctx.Err()):
+		case errors.Is(err, context.Canceled):
+			return nil, status.Error(codes.Canceled, err.Error())
+		case errors.Is(err, context.DeadlineExceeded):
 			return nil, status.Error(codes.DeadlineExceeded, err.Error())
-		case errors.Is(err, bus.ErrEmptyTopic):
-			return nil, status.Error(codes.InvalidArgument, err.Error())
-		case errors.Is(err, bus.ErrPayloadTooLarge):
+		case errors.Is(err, bus.ErrEmptyTopic), errors.Is(err, bus.ErrPayloadTooLarge):
 			return nil, status.Error(codes.InvalidArgument, err.Error())
 		case errors.Is(err, bus.ErrGroupBusy):
 			return nil, status.Error(codes.ResourceExhausted, err.Error())
 		default:
-			return nil, status.Error(codes.Unavailable, err.Error())
+			return nil, status.Error(codes.Internal, err.Error())
 		}
 	}
 
@@ -42,21 +42,15 @@ func (s *Server) Publish(ctx context.Context, req *pb.PublishRequest) (*pb.Publi
 	}, nil
 }
 
-func (s *Server) ListTopics(ctx context.Context, req *pb.ListTopicsRequest) (*pb.ListTopicsResponse, error) {
-	topics, err := s.bus.Topics(ctx)
-	if err != nil {
-		return nil, status.Error(codes.DeadlineExceeded, err.Error())
-	}
-
-	return &pb.ListTopicsResponse{
-		Topics: topics,
-	}, nil
-}
-
 func (s *Server) Subscribe(req *pb.SubscribeRequest, stream grpc.ServerStreamingServer[pb.SubscribeResponse]) error {
-	ch, err := s.bus.Subscribe(stream.Context(), req.GroupId, req.Topic)
+	ch, err := s.bus.Subscribe(stream.Context(), req.Topic, req.Group)
 	if err != nil {
-		return err
+		switch {
+		case errors.Is(err, bus.ErrEmptyTopic):
+			return status.Error(codes.InvalidArgument, err.Error())
+		default:
+			return status.Error(codes.Internal, err.Error())
+		}
 	}
 
 	for e := range ch {
@@ -68,6 +62,23 @@ func (s *Server) Subscribe(req *pb.SubscribeRequest, stream grpc.ServerStreaming
 		})
 	}
 
-	// TODO: what kind of error are we returning?
 	return nil
+}
+
+func (s *Server) ListTopics(ctx context.Context, req *pb.ListTopicsRequest) (*pb.ListTopicsResponse, error) {
+	topics, err := s.bus.Topics(ctx)
+	if err != nil {
+		switch {
+		case errors.Is(err, context.DeadlineExceeded):
+			return nil, status.Error(codes.DeadlineExceeded, err.Error())
+		case errors.Is(err, context.Canceled):
+			return nil, status.Error(codes.Canceled, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+	}
+
+	return &pb.ListTopicsResponse{
+		Topics: topics,
+	}, nil
 }

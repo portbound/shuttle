@@ -153,17 +153,17 @@ func (b *Bus) Subscribe(ctx context.Context, topic, group string) (chan *Event, 
 
 func (b *Bus) Topics(ctx context.Context) ([]string, error) {
 	b.mu.RLock()
+	defer b.mu.RUnlock()
+
 	var topics []string
 	for topic := range b.registry {
 		select {
 		case <-ctx.Done():
-			b.mu.Unlock()
 			return nil, ctx.Err()
 		default:
 			topics = append(topics, topic)
 		}
 	}
-	b.mu.RUnlock()
 
 	return topics, nil
 }
