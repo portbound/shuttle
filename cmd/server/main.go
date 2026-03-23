@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 
@@ -40,6 +41,7 @@ func main() {
 		log.Fatalf("listen on %s: %v", port, err)
 	}
 
+	fmt.Printf("listening on %s", port)
 	if err := grpcServer.Serve(l); err != nil {
 		log.Fatalf("serve: %v", err)
 	}
