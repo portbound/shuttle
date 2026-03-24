@@ -80,6 +80,8 @@ func New(addr string, opts ...Option) (Client, error) {
 	cfg := &options{
 		creds: insecure.NewCredentials(),
 	}
+	// TODO: need to check context injection 
+	// TODO: want to inject silo 
 
 	for _, opt := range opts {
 		opt(cfg)

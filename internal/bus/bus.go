@@ -72,6 +72,7 @@ func (b *Bus) Publish(ctx context.Context, topic string, data []byte) (string, e
 		return e.Id, nil
 	}
 
+	// TODO: add logic to take empty groups as "send all"
 	for group, subs := range groups {
 		if len(subs) == 0 {
 			continue
