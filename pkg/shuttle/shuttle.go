@@ -18,6 +18,14 @@ import (
 const MaxPayloadSize = 256 * 1024
 const Service = "shuttle.Shuttle"
 
+type ShuttleServingStatus int
+
+const (
+	StatusUnknown ShuttleServingStatus = iota
+	StatusServing
+	StatusNotServing
+)
+
 type Event struct {
 	MessageId string
 	Payload   []byte
@@ -42,6 +50,17 @@ var serviceConfig = `{
             }]
         }`
 
+type Message struct {
+	MessageId string
+	Payload   []byte
+	Err       error
+}
+
+type HealthCheck struct {
+	Status ShuttleServingStatus
+	Err    error
+}
+
 type options struct {
 	ctx   context.Context
 	creds credentials.TransportCredentials
@@ -63,10 +82,10 @@ func WithTLS(c credentials.TransportCredentials) Option {
 
 type Client interface {
 	Publish(ctx context.Context, topic string, data []byte) (string, error)
-	Subscribe(ctx context.Context, topic, group string) (chan *Event, error)
-	ListTopics(ctx context.Context, in *pb.ListTopicsRequest, opts ...grpc.CallOption) ([]string, error)
-	CheckHealth(ctx context.Context) (grpc_health_v1.HealthCheckResponse_ServingStatus, error)
-	WatchHealth(ctx context.Context) (grpc_health_v1.Health_WatchClient, error)
+	Subscribe(ctx context.Context, topic, group string) (<-chan *Message, error)
+	ListTopics(ctx context.Context) ([]string, error)
+	CheckHealth(ctx context.Context) (ShuttleServingStatus, error)
+	WatchHealth(ctx context.Context) (<-chan HealthCheck, error)
 	Close() error
 }
 
@@ -127,7 +146,7 @@ func (c *client) Publish(ctx context.Context, topic string, data []byte) (string
 	return resp.MessageId, nil
 }
 
-func (c *client) Subscribe(ctx context.Context, topic, group string) (chan *Event, error) {
+func (c *client) Subscribe(ctx context.Context, topic, group string) (<-chan *Message, error) {
 	if topic == "" {
 		return nil, ErrEmptyTopic
 	}
@@ -142,8 +161,7 @@ func (c *client) Subscribe(ctx context.Context, topic, group string) (chan *Even
 		return nil, err
 	}
 
-	ch := make(chan *Event)
-
+	ch := make(chan *Message)
 	go func() {
 		defer close(ch)
 
@@ -157,11 +175,18 @@ func (c *client) Subscribe(ctx context.Context, topic, group string) (chan *Even
 					if errors.Is(err, io.EOF) {
 						return
 					}
+					ch <- &Message{
+						MessageId: "",
+						Payload:   nil,
+						Err:       err,
+					}
+					return
 				}
 
-				ch <- &Event{
+				ch <- &Message{
 					MessageId: event.MessageId,
 					Payload:   event.Payload,
+					Err:       nil,
 				}
 			}
 		}
@@ -170,7 +195,7 @@ func (c *client) Subscribe(ctx context.Context, topic, group string) (chan *Even
 	return ch, nil
 }
 
-func (c *client) ListTopics(ctx context.Context, in *pb.ListTopicsRequest, opts ...grpc.CallOption) ([]string, error) {
+func (c *client) ListTopics(ctx context.Context) ([]string, error) {
 	req := &pb.ListTopicsRequest{}
 	resp, err := c.shuttleClient.ListTopics(ctx, req)
 	if err != nil {
@@ -180,22 +205,78 @@ func (c *client) ListTopics(ctx context.Context, in *pb.ListTopicsRequest, opts 
 	return resp.Topics, nil
 }
 
-// TODO: need to make this signature gRPC agnostic
-func (c *client) CheckHealth(ctx context.Context) (grpc_health_v1.HealthCheckResponse_ServingStatus, error) {
+func (c *client) CheckHealth(ctx context.Context) (ShuttleServingStatus, error) {
 	req := &grpc_health_v1.HealthCheckRequest{Service: Service}
 
 	resp, err := c.healthClient.Check(ctx, req)
 	if err != nil {
-		return grpc_health_v1.HealthCheckResponse_UNKNOWN, err
+		return StatusUnknown, err
 	}
 
-	return resp.Status, nil
+	switch resp.Status {
+	case grpc_health_v1.HealthCheckResponse_SERVING:
+		return StatusServing, nil
+	case grpc_health_v1.HealthCheckResponse_NOT_SERVING:
+		return StatusNotServing, nil
+	default:
+		return StatusUnknown, nil
+	}
 }
 
-// TODO: need to make this signature gRPC agnostic
-func (c *client) WatchHealth(ctx context.Context) (grpc_health_v1.Health_WatchClient, error) {
+func (c *client) WatchHealth(ctx context.Context) (<-chan HealthCheck, error) {
 	req := &grpc_health_v1.HealthCheckRequest{Service: Service}
-	return c.healthClient.Watch(ctx, req)
+
+	stream, err := c.healthClient.Watch(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	ch := make(chan HealthCheck, 1)
+	go func() {
+		defer close(ch)
+		var status ShuttleServingStatus
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				resp, err := stream.Recv()
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						return
+					}
+
+					ch <- HealthCheck{
+						Status: status,
+						Err:    nil,
+					}
+					return
+				}
+
+				switch resp.Status {
+				case grpc_health_v1.HealthCheckResponse_SERVING:
+					status = StatusServing
+				case grpc_health_v1.HealthCheckResponse_NOT_SERVING:
+					status = StatusNotServing
+				default:
+					status = StatusUnknown
+				}
+
+				select {
+				case <-ch:
+				default:
+				}
+
+				ch <- HealthCheck{
+					Status: status,
+					Err:    nil,
+				}
+			}
+		}
+	}()
+
+	return ch, nil
 }
 
 func (c *client) Close() error {
