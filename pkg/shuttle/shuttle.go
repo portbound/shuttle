@@ -68,12 +68,6 @@ type options struct {
 
 type Option func(*options)
 
-func WithContext(ctx context.Context) Option {
-	return func(o *options) {
-		o.ctx = ctx
-	}
-}
-
 func WithTLS(c credentials.TransportCredentials) Option {
 	return func(o *options) {
 		o.creds = c
