@@ -26,9 +26,8 @@ const (
 	StatusNotServing
 )
 
-type Event struct {
-	MessageId string
-	Payload   []byte
+func (s ShuttleServingStatus) String() string {
+	return [...]string{"StatusUnknown", "StatusServing", "StatusNotServing"}[s]
 }
 
 var (
