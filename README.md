@@ -1,13 +1,15 @@
 # Shuttle
 
-Shuttle is a high-performance message bus implemented in Go using gRPC. It provides a simple API for publishing and subscribing to messages with support for consumer groups and health monitoring.
+Shuttle is a lightweight event bus implemented in Go using gRPC. 
+
+Release v2.0.0 will support optional integration with [Silo](https://github.com/portbound/silo), a log-structured KV store for logging, and subscriber replay functionality, simliar to Kafka.
 
 ## Features
 
-- **gRPC Native**: Built on gRPC for efficient, cross-language communication.
-- **Consumer Groups**: Distributed message processing across multiple subscribers.
+- **Load Balancing Consumer Groups**: Distributed message processing across group members.
+- **Secure Communication**: Optional TLS support.  
 - **Health Monitoring**: Integrated gRPC health checking for service reliability.
-- **Simple Client**: A clean Go client library for easy integration.
+- **Client SDK**: A Go client library for simple integration.
 
 ## Installation
 
@@ -17,7 +19,9 @@ go get github.com/portbound/shuttle
 
 ## Usage
 
-### Server
+
+### Quick Start
+#### Server
 
 Start the Shuttle server:
 
@@ -25,29 +29,38 @@ Start the Shuttle server:
 go run cmd/server/main.go
 ```
 
-### Client
+#### Client
 
-#### Initialize Client
+Initialize the Shuttle client:
 
 ```go
 import "github.com/portbound/shuttle/pkg/shuttle"
 
-sh, err := shuttle.New("localhost:50051")
+// If you're running k8s, you can trigger the gRPC DNS Resolver by prefixing your address with dns:///
+// This will enable client-side load balancing, allowing a single client to discover and connect to all pods
+// e.g. 
+// target = "shuttle-svc.namespace.svc.cluster.local:50051"
+// addr   = fmt.Sprintf("dns:///%s", target)
+
+addr = "localhost:50051"
+
+sh, err := shuttle.New(addr)
 if err != nil {
     log.Fatal(err)
 }
 defer sh.Close()
 ```
 
-#### Publish
+##### Publish
 
 ```go
 msgId, err := sh.Publish(ctx, "updates", []byte("payload"))
+if err != nil {
+    log.Fatal(err)
+}
 ```
 
-#### Subscribe
-
-Subscribing with a group name enables load balancing across consumers in that group.
+##### Subscribe
 
 ```go
 ch, err := sh.Subscribe(ctx, "updates", "worker-group")
@@ -60,37 +73,32 @@ for msg := range ch {
 }
 ```
 
-## API Reference
+## Client SDK
 
 ### `pkg/shuttle`
+
+### API Reference
+
 
 | Method | Description |
 |--------|-------------|
 | `New(addr string, opts ...Option)` | Creates a new Shuttle client. |
-| `Publish(ctx, topic, data)` | Publishes a message to a topic. |
+| `Publish(ctx context.Context, topic, data string)` | Publishes a message to a topic. |
 | `Subscribe(ctx, topic, group)` | Subscribes to a topic within a consumer group. |
 | `ListTopics(ctx)` | Returns a list of all active topics. |
 | `CheckHealth(ctx)` | Returns the current serving status of the server. |
 | `WatchHealth(ctx)` | Returns a channel for streaming health updates. |
 | `Close()` | Closes the underlying gRPC connection. |
 
-## Example
+
+### Example
 
 For a complete implementation demonstrating concurrent publishers and subscribers, refer to `example/main.go`.
 
-```go
-// Run the example
-go run example/main.go
-```
+### Error Handling 
+- `ErrEmptyTopic`: Returned when a Publisher or Subscriber has not provided a topic 
+- `ErrPayloadTooLarge`: Returned when a Publisher attempts to push a payload that exceeds MaxPayloadSize (256kb)
+- `ErrGroupBusy`: Returned when consumers are fully saturated"
 
-## Protocol
-
-The service is defined in `proto/shuttle.proto`:
-
-```proto
-service Shuttle {
-  rpc Publish(PublishRequest) returns (PublishResponse);
-  rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse);
-  rpc ListTopics(ListTopicsRequest) returns (ListTopicsResponse);
-}
-```
+## License 
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/portbound/shuttle/blob/main/LICENSE) file for details.
