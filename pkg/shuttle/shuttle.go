@@ -52,6 +52,7 @@ var serviceConfig = `{
 type Message struct {
 	MessageId string
 	Payload   []byte
+	Timestamp int64
 	Err       error
 }
 
@@ -177,6 +178,7 @@ func (c *client) Subscribe(ctx context.Context, topic, group string) (<-chan *Me
 					ch <- &Message{
 						MessageId: "",
 						Payload:   nil,
+						Timestamp: 0,
 						Err:       err,
 					}
 					return
@@ -185,6 +187,7 @@ func (c *client) Subscribe(ctx context.Context, topic, group string) (<-chan *Me
 				ch <- &Message{
 					MessageId: event.MessageId,
 					Payload:   event.Payload,
+					Timestamp: event.Timestamp,
 					Err:       nil,
 				}
 			}
