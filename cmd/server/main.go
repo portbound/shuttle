@@ -16,7 +16,6 @@ import (
 const port string = ":50051"
 
 func main() {
-	// TODO: use TLS
 
 	// creds, err := credentials.NewServerTLSFromFile("", "")
 	// if err != nil {
@@ -46,3 +45,6 @@ func main() {
 		log.Fatalf("serve: %v", err)
 	}
 }
+
+// TODO: configure TLS
+// TODO: add .env to specify port

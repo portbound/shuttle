@@ -11,9 +11,14 @@ import (
 )
 
 var (
-	target = "localhost:50051"
-	addr   = fmt.Sprintf("dns:///%s", target)
-	topic  = "test"
+	// If you're running k8s, you can trigger the gRPC DNS Resolver by prefixing your address with dns:///
+	// This will enable client-side load balancing, allowing a single client to discover and connect to all pods
+	// e.g.
+	// target = "shuttle-svc.namespace.svc.cluster.local:50051"
+	// addr   = fmt.Sprintf("dns:///%s", target)
+
+	addr  = "localhost:50051"
+	topic = "test"
 )
 
 func main() {

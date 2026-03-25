@@ -280,3 +280,6 @@ func (c *client) Close() error {
 // TODO: Hookup TLS
 // TODO: Want to inject silo as perm storage option
 // TODO: When calling an rpc, if server is not online, we should probably back off and wait a moment before trying again immediately. I think this is exponential backoff.
+// TODO: test retries
+// TODO: finish writing tests for Client
+// TODO: expand service config (things like loadBalancingConfig - round robin)
