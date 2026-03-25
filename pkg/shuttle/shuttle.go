@@ -259,7 +259,7 @@ func (c *client) WatchHealth(ctx context.Context) (<-chan HealthCheck, error) {
 
 					ch <- HealthCheck{
 						Status: status,
-						Err:    nil,
+						Err:    err,
 					}
 					return
 				}
