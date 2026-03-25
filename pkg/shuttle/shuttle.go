@@ -93,8 +93,6 @@ func New(addr string, opts ...Option) (Client, error) {
 	cfg := &options{
 		creds: insecure.NewCredentials(),
 	}
-	// TODO: need to check context injection 
-	// TODO: want to inject silo 
 
 	for _, opt := range opts {
 		opt(cfg)
@@ -278,3 +276,7 @@ func (c *client) WatchHealth(ctx context.Context) (<-chan HealthCheck, error) {
 func (c *client) Close() error {
 	return c.conn.Close()
 }
+
+// TODO: Hookup TLS
+// TODO: Want to inject silo as perm storage option
+// TODO: When calling an rpc, if server is not online, we should probably back off and wait a moment before trying again immediately. I think this is exponential backoff.

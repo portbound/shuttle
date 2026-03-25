@@ -168,3 +168,5 @@ func (b *Bus) Topics(ctx context.Context) ([]string, error) {
 
 	return topics, nil
 }
+
+// TODO: maybe add more info to Topics response (# groups and # members in group)
