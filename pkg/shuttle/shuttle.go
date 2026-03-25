@@ -2,6 +2,7 @@ package shuttle
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -68,9 +69,24 @@ type options struct {
 
 type Option func(*options)
 
-func WithTLS(c credentials.TransportCredentials) Option {
+// func WithTLS(config *tls.Config) Option {
+// 	if config == nil {
+//		config = &tls.Config{}
+//  }
+// 	return func(o *options) {
+// 		o.creds = credentials.NewTLS(&tls.Config{}) // TODO: maybe use this and hav ethe client specify .Config{} opts - need to look into this more
+// 	}
+// }
+
+func WithTLS() Option {
 	return func(o *options) {
-		o.creds = c
+		o.creds = credentials.NewTLS(&tls.Config{})
+	}
+}
+
+func WithInsecure() Option {
+	return func(o *options) {
+		o.creds = insecure.NewCredentials()
 	}
 }
 
@@ -91,7 +107,7 @@ type client struct {
 
 func New(addr string, opts ...Option) (Client, error) {
 	cfg := &options{
-		creds: insecure.NewCredentials(),
+		creds: credentials.NewTLS(&tls.Config{}),
 	}
 
 	for _, opt := range opts {
