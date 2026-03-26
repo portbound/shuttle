@@ -45,6 +45,3 @@ func main() {
 		log.Fatalf("serve: %v", err)
 	}
 }
-
-// TODO: configure TLS
-// TODO: add .env to specify port

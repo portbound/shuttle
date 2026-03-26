@@ -74,7 +74,7 @@ type Option func(*options)
 //		config = &tls.Config{}
 //  }
 // 	return func(o *options) {
-// 		o.creds = credentials.NewTLS(&tls.Config{}) // TODO: maybe use this and hav ethe client specify .Config{} opts - need to look into this more
+
 // 	}
 // }
 
@@ -292,10 +292,3 @@ func (c *client) WatchHealth(ctx context.Context) (<-chan HealthCheck, error) {
 func (c *client) Close() error {
 	return c.conn.Close()
 }
-
-// TODO: Hookup TLS
-// TODO: Want to inject silo as perm storage option
-// TODO: When calling an rpc, if server is not online, we should probably back off and wait a moment before trying again immediately. I think this is exponential backoff.
-// TODO: test retries
-// TODO: finish writing tests for Client
-// TODO: expand service config (things like loadBalancingConfig - round robin)

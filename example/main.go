@@ -17,8 +17,9 @@ var (
 	// target = "shuttle-svc.namespace.svc.cluster.local:50051"
 	// addr   = fmt.Sprintf("dns:///%s", target)
 
-	addr  = "localhost:50051"
-	topic = "test"
+	target = "shuttle.portbound.io"
+	addr   = fmt.Sprintf("dns:///%s", target)
+	topic  = "test"
 )
 
 func main() {
@@ -44,13 +45,13 @@ func main() {
 }
 
 func publish(ctx context.Context) {
-	sh, err := shuttle.New(addr)
+	sh, err := shuttle.New(addr, shuttle.WithTLS())
 	if err != nil {
 		log.Fatalf("new shuttle: %v", err)
 	}
 	defer sh.Close()
 
-	ticker := time.NewTicker(time.Millisecond * 500)
+	ticker := time.NewTicker(time.Millisecond * 5)
 	defer ticker.Stop()
 
 	for range ticker.C {
@@ -64,7 +65,7 @@ func publish(ctx context.Context) {
 }
 
 func subscribe(ctx context.Context, client int, group string) {
-	sh, err := shuttle.New(addr)
+	sh, err := shuttle.New(addr, shuttle.WithTLS())
 	if err != nil {
 		log.Fatalf("new shuttle: %v", err)
 	}
