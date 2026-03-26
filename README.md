@@ -2,8 +2,6 @@
 
 Shuttle is a lightweight event bus implemented in Go using gRPC. 
 
-Release v2.0.0 will support optional integration with [Silo](https://github.com/portbound/silo), a log-structured KV store for logging, and subscriber replay functionality, simliar to Kafka.
-
 ## Features
 
 - **Load Balancing Consumer Groups**: Distributed message processing across group members.
@@ -36,13 +34,8 @@ Initialize the Shuttle client:
 ```go
 import "github.com/portbound/shuttle/pkg/shuttle"
 
-// If you're running k8s, you can trigger the gRPC DNS Resolver by prefixing your address with dns:///
-// This will enable client-side load balancing, allowing a single client to discover and connect to all pods
-// e.g. 
-// target = "shuttle-svc.namespace.svc.cluster.local:50051"
-// addr   = fmt.Sprintf("dns:///%s", target)
-
-addr = "localhost:50051"
+target = "shuttle-svc.namespace.svc.cluster.local:50051"
+addr   = fmt.Sprintf("dns:///%s", target)
 
 sh, err := shuttle.New(addr)
 if err != nil {
