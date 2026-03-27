@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/retry"
 	pb "github.com/portbound/shuttle/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -37,19 +39,6 @@ var (
 	ErrGroupBusy       = errors.New("consumers are fully saturated")
 )
 
-var serviceConfig = `{
-            "methodConfig": [{
-        		"name": [{"service": "shuttle.Shuttle"}],
-                "retryPolicy": {
-                    "MaxAttempts": 4,
-                    "InitialBackoff": ".01s",
-                    "MaxBackoff": ".01s",
-                    "BackoffMultiplier": 1.0,
-                    "RetryableStatusCodes": [ "DEADLINE_EXCEEDED", "RESOURCE_EXHAUSTED", "UNAVAILABLE" ]
-                }
-            }]
-        }`
-
 type Message struct {
 	MessageId string
 	Payload   []byte
@@ -63,31 +52,36 @@ type HealthCheck struct {
 }
 
 type options struct {
-	ctx   context.Context
 	creds credentials.TransportCredentials
 }
 
 type Option func(*options)
 
-// func WithTLS(config *tls.Config) Option {
-// 	if config == nil {
-//		config = &tls.Config{}
-//  }
-// 	return func(o *options) {
-
-// 	}
-// }
-
-func WithTLS() Option {
-	return func(o *options) {
-		o.creds = credentials.NewTLS(&tls.Config{})
-	}
-}
-
 func WithInsecure() Option {
 	return func(o *options) {
 		o.creds = insecure.NewCredentials()
 	}
+}
+
+var defaults = []grpc.DialOption{
+	grpc.WithChainUnaryInterceptor(
+		grpc_retry.UnaryClientInterceptor(
+			grpc_retry.WithMax(3),
+			grpc_retry.WithBackoff(
+				grpc_retry.BackoffExponential(100*time.Millisecond),
+			),
+			grpc_retry.WithCodes(codes.DeadlineExceeded, codes.ResourceExhausted, codes.Unavailable),
+		),
+	),
+	grpc.WithChainStreamInterceptor(
+		grpc_retry.StreamClientInterceptor(
+			grpc_retry.WithMax(3),
+			grpc_retry.WithBackoff(
+				grpc_retry.BackoffExponential(100*time.Millisecond),
+			),
+			grpc_retry.WithCodes(codes.DeadlineExceeded, codes.ResourceExhausted, codes.Unavailable),
+		),
+	),
 }
 
 type Client interface {
@@ -114,7 +108,8 @@ func New(addr string, opts ...Option) (Client, error) {
 		opt(cfg)
 	}
 
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(cfg.creds), grpc.WithDefaultServiceConfig(serviceConfig))
+	defaults = append(defaults, grpc.WithTransportCredentials(cfg.creds))
+	conn, err := grpc.NewClient(addr, defaults...)
 	if err != nil {
 		return nil, fmt.Errorf("set up client: %v", err)
 	}
