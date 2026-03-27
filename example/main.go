@@ -11,13 +11,14 @@ import (
 )
 
 var (
-	// If you're running k8s, you can trigger the gRPC DNS Resolver by prefixing your address with dns:///
-	// This will enable client-side load balancing, allowing a single client to discover and connect to all pods
-	// e.g.
-	// target = "shuttle-svc.namespace.svc.cluster.local:50051"
-	// addr   = fmt.Sprintf("dns:///%s", target)
+	// you can trigger the gRPC DNS Resolver by prefixing your address with dns:///
+	// if you're using K8s, this will enable client-side load balancing by allowing a single client to discover and connect to all pods
+	// e.g. target = "shuttle-svc.namespace.svc.cluster.local:50051"
 
-	target = "shuttle.portbound.io"
+	// it can also be used to connect to a specific domain if you have the service running in a container behind a reverse proxy
+	// e.g. target = "shuttle.domain.com"
+
+	target = ":50051"
 	addr   = fmt.Sprintf("dns:///%s", target)
 	topic  = "test"
 )
@@ -45,7 +46,7 @@ func main() {
 }
 
 func publish(ctx context.Context) {
-	sh, err := shuttle.New(addr, shuttle.WithTLS())
+	sh, err := shuttle.New(addr, shuttle.WithInsecure())
 	if err != nil {
 		log.Fatalf("new shuttle: %v", err)
 	}
@@ -65,7 +66,7 @@ func publish(ctx context.Context) {
 }
 
 func subscribe(ctx context.Context, client int, group string) {
-	sh, err := shuttle.New(addr, shuttle.WithTLS())
+	sh, err := shuttle.New(addr, shuttle.WithInsecure())
 	if err != nil {
 		log.Fatalf("new shuttle: %v", err)
 	}
@@ -82,7 +83,7 @@ func subscribe(ctx context.Context, client int, group string) {
 }
 
 func watchHealth(ctx context.Context) {
-	sh, err := shuttle.New(addr)
+	sh, err := shuttle.New(addr, shuttle.WithInsecure())
 	if err != nil {
 		log.Fatalf("new shuttle: %v", err)
 	}
